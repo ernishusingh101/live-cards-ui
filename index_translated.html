@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swipeable Custom Cards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/518f5a8c8e.js" crossorigin="anonymous"></script>
+  <style>
+    html, body {
+      background: #0f172a;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      font-family: sans-serif;
+      height: 100%;
+    }
+    .scroll-container {
+      display: flex;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 0;
+      padding: 5vh 0;
+      width: 100vw;
+      height: 90vh;
+      box-sizing: border-box;
+    }
+    .scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    .parent {
+      width: 100vw;
+      height: 100%;
+      flex-shrink: 0;
+      scroll-snap-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 5vh;
+      padding-bottom: 5vh;
+      box-sizing: border-box;
+      perspective: 1000px;
+    }
+    .card {
+      width: 66vw;
+      max-width: 550px;
+      border-radius: 50px;
+      background: linear-gradient(135deg,
+        #1e1e2f, #2a0845, #4a0d67, #7e2553, #702963, #442583,
+        rgba(0, 255, 195, 0.3), rgba(0, 226, 96, 0.3), #1b1b1b,
+        #2e8b57, #004953, #1c1c1c, #ff7538, #ff1a1a, #007fff,
+        #1b1b1b, #0d0d0d, #e0e0e0, #4b4b4b, #dcdcdc
+      );
+      background-size: 3000% 3000%;
+      animation: gradientShift 40s ease infinite;
+      transition: all 0.5s ease-in-out;
+      transform-style: preserve-3d;
+      box-shadow: rgba(5, 71, 17, 0) 40px 50px 25px -40px,
+                  rgba(5, 71, 17, 0.2) 0px 25px 25px -5px;
+      position: relative;
+      overflow: hidden;
+      min-height: var(--max-card-height, 300px);
+      padding-top: 20vh;
+      padding-bottom: 20vh;
+      color: white;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .glass {
+      transform-style: preserve-3d;
+      position: absolute;
+      inset: 8px;
+      border-radius: 55px;
+      border-top-right-radius: 100%;
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.25) 100%);
+      transform: translate3d(0px, 0px, 25px);
+      border-left: 1px solid rgba(255,255,255,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      transition: all 0.5s ease-in-out;
+    }
+    .content {
+      padding: 0 30px;
+      transform: translate3d(0, 0, 26px);
+      word-wrap: break-word;
+    }
+    .content .title, .content .text {
+      mix-blend-mode: difference;
+    }
+    .content .title {
+      display: block;
+      font-weight: 900;
+      font-size: 24px;
+    }
+    .content .text {
+      display: block;
+      font-size: 16px;
+      margin-top: 20px;
+      word-wrap: break-word;
+      line-height: 1.6;
+    }
+    .logo {
+      position: absolute;
+      right: 30px;
+      top: 30px;
+      transform: translate3d(0, 0, 120px);
+      font-size: 3rem;
+      color: white;
+    }
+    .swipe-hint {
+      position: fixed;
+      bottom: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      z-index: 9999;
+      animation: fadeOut 5s ease-out forwards;
+      pointer-events: none;
+    }
+    #google_translate_element {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px);
+      border-radius: 30px;
+      padding: 5px 12px;
+      font-size: 14px;
+      color: white;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; display: none; }
+    }
+  </style>
+</head>
+<body>
+<div id="google_translate_element"></div>
+<div class="scroll-container" id="cards-container"></div>
+<div class="swipe-hint" id="swipeHint">Swipe left or right to explore cards →</div>
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'en,hi,es,fr,de,ta,te,zh-CN',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+  }
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script>
+const sheetID = '1LpSiQ7k7wTgkRHNY8bsw4YZ7GQ_Xm0MjGOKK8sYthB4';
+const sheetName = 'Sheet1';
+const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+function createCard(icon, title, text) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'parent';
+  wrapper.innerHTML = `
+    <div class="card">
+      <div class="logo"><i class="${icon}"></i></div>
+      <div class="glass"></div>
+      <div class="content">
+        <span class="title">${title}</span>
+        <span class="text">${text}</span>
+      </div>
+    </div>`;
+  return wrapper;
+}
+
+function adjustCardHeights() {
+  const parents = document.querySelectorAll('.parent');
+  let maxHeight = 0;
+  parents.forEach(p => {
+    const height = p.offsetHeight;
+    if (height > maxHeight) maxHeight = height;
+  });
+  parents.forEach(p => p.querySelector('.card').style.minHeight = maxHeight + 'px');
+}
+
+function renderCards(dataArray) {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  dataArray.forEach((row) => {
+    const [icon, title, text] = row;
+    if (icon && title && text) {
+      container.appendChild(createCard(icon, title, text));
+    }
+  });
+  setTimeout(adjustCardHeights, 100);
+}
+
+function fetchSheetData() {
+  fetch(sheetURL)
+    .then(res => res.text())
+    .then(text => JSON.parse(text.substring(47).slice(0, -2)))
+    .then(json => {
+      const rows = json.table.rows.map(r => r.c.map(c => (c ? c.v : '')));
+      renderCards(rows);
+    })
+    .catch(console.error);
+}
+fetchSheetData();
+setInterval(fetchSheetData, 4 * 60 * 60 * 1000);
+</script>
+</body>
+</html>
