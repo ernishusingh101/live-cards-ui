@@ -1,2 +1,2 @@
 # live-cards-ui
-Swipeable cards powered by Google Sheets
+How to be a better passenger and quickly accepted
